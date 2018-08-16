@@ -135,7 +135,8 @@ Workbook$methods(setColWidths = function(sheet) {
 
     widths[missingAuto] <- 9.15
   }
-
+  
+   # TODO: Write out outlineLevel and collapsed if given...
   ## Calculate width of auto
   colNodes <- sprintf('<col min="%s" max="%s" width="%s" hidden = "%s" customWidth="1"/>', cols, cols, widths, hidden)
 

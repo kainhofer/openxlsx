@@ -92,18 +92,22 @@ SEXP loadworksheets(Reference wb, List styleObjects, std::vector<std::string> xm
         this_worksheet.field("sheetViews") = node_xml;
       
       
-      //colwidths
+      //colwidths and outlines
       std::vector<std::string> cols = getChildlessNode_ss(xml_pre, "<col ");
       if(cols.size() > 0){
         
         NumericVector widths;
         IntegerVector columns;
         CharacterVector column_hidden;  
+        CharacterVector column_outlineLevel;
+        CharacterVector column_collapsed;
         
         for(size_t ci = 0; ci < cols.size(); ci++){
           
           double tmp_width = 0;
           std::string tmp_hidden;
+          std::string tmp_outlineLevel;
+          std::string tmp_collapsed;
           int min_c = 0;
           int max_c = 0;
           buf = cols[ci];
@@ -129,11 +133,31 @@ SEXP loadworksheets(Reference wb, List styleObjects, std::vector<std::string> xm
               tmp_hidden = "0";
             }
             
+            tmp_pos = buf.find("outlineLevel=\"", 0);
+            if(tmp_pos != string::npos){
+              endPos = buf.find(tagEnd, tmp_pos + 14);
+              tmp_outlineLevel = buf.substr(tmp_pos + 14, endPos - tmp_pos - 14);
+            }else{
+              tmp_outlineLevel = "";
+            }
+            
+            tmp_pos = buf.find("collapsed=\"", 0);
+            if(tmp_pos != string::npos){
+              endPos = buf.find(tagEnd, tmp_pos + 14);
+              tmp_collapsed = buf.substr(tmp_pos + 14, endPos - tmp_pos - 14);
+            }else{
+              tmp_collapsed = "";
+            }
+            
+            // TODO: Handle outlineLevel and collapsed elements
+            
 
             while(min_c <= max_c){
               widths.push_back(tmp_width);
               columns.push_back(min_c);
               column_hidden.push_back(tmp_hidden);
+              column_outlineLevel.push_back(tmp_outlineLevel);
+              column_collapsed.push_back(tmp_collapsed);
               min_c++;
             }
 
@@ -145,6 +169,8 @@ SEXP loadworksheets(Reference wb, List styleObjects, std::vector<std::string> xm
           CharacterVector tmp_widths(widths);
           tmp_widths.attr("names") = columns;
           tmp_widths.attr("hidden") = column_hidden;
+          tmp_widths.attr("outlineLevel") = column_outlineLevel;
+          tmp_widths.attr("collapsed") = column_collapsed;
           colWidths[i] = tmp_widths;
         }
         
