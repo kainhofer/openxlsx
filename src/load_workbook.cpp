@@ -97,7 +97,8 @@ SEXP loadworksheets(Reference wb, List styleObjects, std::vector<std::string> xm
       if(cols.size() > 0){
         
         NumericVector widths;
-        IntegerVector columns;
+        IntegerVector columns_from;
+        IntegerVector columns_to;
         CharacterVector column_hidden;  
         CharacterVector column_outlineLevel;
         CharacterVector column_collapsed;
@@ -111,7 +112,7 @@ SEXP loadworksheets(Reference wb, List styleObjects, std::vector<std::string> xm
           int min_c = 0;
           int max_c = 0;
           buf = cols[ci];
-          if(buf.find("customWidth", 0) != string::npos){
+          // if(buf.find("customWidth", 0) != string::npos){
             
             tmp_pos = buf.find("min=\"", 0);
             endPos = buf.find(tagEnd, tmp_pos + 5);
@@ -122,8 +123,12 @@ SEXP loadworksheets(Reference wb, List styleObjects, std::vector<std::string> xm
             max_c = atoi(buf.substr(tmp_pos + 5, endPos - tmp_pos - 5).c_str());
             
             tmp_pos = buf.find("width=\"", 0);
-            endPos = buf.find(tagEnd, tmp_pos + 7);
-            tmp_width = atof(buf.substr(tmp_pos + 7, endPos - tmp_pos - 7).c_str()) - 0.71;
+            if(tmp_pos != string::npos){
+              endPos = buf.find(tagEnd, tmp_pos + 7);
+              tmp_width = atof(buf.substr(tmp_pos + 7, endPos - tmp_pos - 7).c_str()) - 0.71;
+            } else {
+              tmp_width = -1;
+            }
             
             tmp_pos = buf.find("hidden=\"", 0);
             if(tmp_pos != string::npos){
@@ -152,22 +157,24 @@ SEXP loadworksheets(Reference wb, List styleObjects, std::vector<std::string> xm
             // TODO: Handle outlineLevel and collapsed elements
             
 
-            while(min_c <= max_c){
+            // while(min_c <= max_c){
               widths.push_back(tmp_width);
-              columns.push_back(min_c);
+              columns_from.push_back(min_c);
+              columns_to.push_back(min_c);
               column_hidden.push_back(tmp_hidden);
               column_outlineLevel.push_back(tmp_outlineLevel);
               column_collapsed.push_back(tmp_collapsed);
-              min_c++;
-            }
+              // min_c++;
+            // }
 
-          }
+          // }
           
         }
         
         if(widths.size() > 0){
           CharacterVector tmp_widths(widths);
-          tmp_widths.attr("names") = columns;
+          tmp_widths.attr("names") = columns_from;
+          tmp_widths.attr("names_to") = columns_to;
           tmp_widths.attr("hidden") = column_hidden;
           tmp_widths.attr("outlineLevel") = column_outlineLevel;
           tmp_widths.attr("collapsed") = column_collapsed;
