@@ -427,6 +427,7 @@ SEXP read_workbook(IntegerVector cols_in,
                    bool skipEmptyRows,
                    bool skipEmptyCols,
                    int nRows,
+                   IntegerVector requested_cols,
                    Function clean_names
 ){
   
@@ -461,14 +462,24 @@ SEXP read_workbook(IntegerVector cols_in,
   
   IntegerVector uni_cols = sort_unique(cols);
   if(!skipEmptyCols){  // want to keep all columns - just create a sequence from 1:max(cols)
-    uni_cols = seq(1, max(uni_cols));
-    cols = cols - 1;
+    // uni_cols = seq(1, max(uni_cols) - min(uni_cols));
+    cols = cols - min(uni_cols);
   }else{
     cols = match(cols, uni_cols) - 1;
   }
   
   // scale columns from i:j to 1:(j-i+1)
   int nCols = *std::max_element(cols.begin(), cols.end()) + 1;
+
+// Rcout << "nCols: " << nCols << endl;
+// Rcout << "cols.size(): " << cols.size() << endl;
+// for(int i = 0; i < uni_cols.size(); i++)
+//   Rcout << "    uni_cols[i]: " << uni_cols[i] << endl;
+// for(int i = 0; i < cols.size(); i++)
+//   Rcout << "    cols[i]: " << cols[i] << endl;
+// 
+// Rcout << "skipEmptyCols: " << skipEmptyCols << endl;
+
   
   // scale rows from i:j to 1:(j-i+1)
   IntegerVector uni_rows = sort_unique(rows);

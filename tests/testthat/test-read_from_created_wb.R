@@ -168,6 +168,37 @@ test_that("Empty workbook", {
 
 
   expect_equal(object = getwd(), curr_wd)
+  
+  
+  
+  # skipEmptyCols with regions that do not start at first clumn
+  addWorksheet(wb, "Sheet 3")
+  removeWorksheet(wb, 1)
+  
+  ## 1 date  
+  writeData(wb, 1, x = 1, xy = c(1,1), colNames = FALSE)
+  writeData(wb, 1, x = 2, xy = c(2,1), colNames = FALSE)
+  writeData(wb, 1, x = 3, xy = c(3,1), colNames = FALSE)
+  writeData(wb, 1, x = 5, xy = c(5,1), colNames = FALSE)
+    
+  x <- read.xlsx(wb, sheet = 1, skipEmptyCols = FALSE, colNames = FALSE)
+  expect_equal(
+    data.frame(X1 = 1,X2 = 2,X3 = 3, X4 = NA_integer_, X5 = 5),
+    x
+  )
+  
+  x <- read.xlsx(wb, sheet = 1, cols = 3:5, skipEmptyCols = TRUE, colNames = FALSE)
+  expect_equal(
+    data.frame(X1 = 3, X2 = 5),
+    x
+  )
+  
+  x <- read.xlsx(wb, sheet = 1, cols = 3:5, skipEmptyCols = FALSE, colNames = FALSE)
+  expect_equal(
+    data.frame(X1 = 3, X2 = NA_integer_, X3 = 5),
+    x
+  )
+  
 })
 
 

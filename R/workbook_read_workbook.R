@@ -345,6 +345,7 @@ read.xlsx.Workbook <- function(xlsxFile,
     skipEmptyRows = skipEmptyRows,
     skipEmptyCols = skipEmptyCols,
     nRows = nRows,
+    requested_cols = cols, # Requested columns (including those removed because of NA)
     clean_names = clean_names
   )
 

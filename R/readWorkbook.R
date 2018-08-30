@@ -433,7 +433,8 @@ read.xlsx.default <- function(xlsxFile,
     warning("No data found on worksheet.", call. = FALSE)
     return(NULL)
   }
-
+  
+  # TODO: Do not remove NA cells, because when skipEmptyCols = FALSE, we have to add them later on, which messes things up!
   keep <- !is.na(cell_info$v)
   if (!is.null(cols)) {
     keep <- keep & (cell_cols %in% cols)
@@ -444,6 +445,7 @@ read.xlsx.default <- function(xlsxFile,
   ######################################################################
 
   ## Subset
+  # TODO: Do not simply subset, but make sure the order of the cols argument is preserved!
   cell_rows <- cell_rows[keep]
   cell_cols <- cell_cols[keep]
 
@@ -568,6 +570,7 @@ read.xlsx.default <- function(xlsxFile,
     skipEmptyRows = skipEmptyRows,
     skipEmptyCols = skipEmptyCols,
     nRows = nRows,
+    requested_cols = cols, # Requested columns (including those removed because of NA)
     clean_names = clean_names
   )
 
